@@ -9,6 +9,7 @@ The math crossword game (Nov 2026) was built feature by feature with no code sta
 ## Architecture: modules split by concern
 
 - Any non-trivial artifact is built as ES modules (`type="module"`), never as one classic script. A trivial static page with a handful of lines may stay a single script; anything with state, generation, or interaction may not.
+- Exception, learned Nov 19, 2026: the Muse artifact runtime refuses local module scripts, so in an artifact the modules are classic IIFE scripts loaded in dependency order instead — same split by concern, same one-state-owner shape, just not ES-module syntax. The GitHub copy of the same code can use real ES modules.
 - Split by concern, one module per job: e.g. `i18n.js` (strings + translation), `puzzle.js` (generation), `solver.js` (solving/validation), `state.js` (the game/app state and its actions), `view.js` (rendering), `audio.js` (sound), `drag.js` (pointer gestures).
 - `index.html` holds structure only. All styling lives in an external stylesheet (e.g. `assets/css/game.css`), linked from the page — never a `<style>` block in the HTML.
 - No build tooling is assumed. Modules are plain ES modules loaded by the browser; keep them dependency-free unless a library is genuinely needed.
@@ -45,8 +46,8 @@ The math crossword game (Nov 2026) was built feature by feature with no code sta
 
 ## Icons: real SVG files under `assets/icons/`
 
-- Icons are real SVG files, never inline SVG paths pasted into `index.html`. Store them under `assets/icons/` — one file per icon (e.g. `globe.svg`, `reset.svg`, `sound-on.svg`, `sound-off.svg`, `pause.svg`, `play.svg`, `hint.svg`, `sort.svg`, `undo.svg`), or a single sprite file `assets/icons/icons.svg` with one `<symbol>` per icon. A sprite is preferred: one request, one place to find every icon.
-- Reference them from the HTML with `<svg><use href="assets/icons/icons.svg#globe"></use></svg>` (sprite) or `<use href="assets/icons/globe.svg">` (single file) — not with `<img>`. An `<img>` cannot inherit the button's colour; `<use>` keeps `fill="currentColor"`, so the icon still takes its colour from CSS.
+- Icons are real SVG files, never inline SVG paths pasted into `index.html`. Store them under `assets/icons/` — one file per icon (e.g. `globe.svg`, `reset.svg`, `sound-on.svg`, `sound-off.svg`, `pause.svg`, `play.svg`, `hint.svg`, `sort.svg`, `undo.svg`), or a single sprite file `assets/icons/sprite.svg` with one `<symbol>` per icon. A sprite is preferred: one request, one place to find every icon.
+- Reference them from the HTML with `<svg><use href="assets/icons/sprite.svg#globe"></use></svg>` (sprite) or `<use href="assets/icons/globe.svg">` (single file) — not with `<img>`. An `<img>` cannot inherit the button's colour; `<use>` keeps `fill="currentColor"`, so the icon still takes its colour from CSS.
 - Keep every icon on a `viewBox="0 0 24 24"` with `fill="currentColor"`. The `aria-label` stays on the button, not the icon; the `<svg>` itself is `aria-hidden="true"`.
 - State variants are separate icons, toggled by CSS classes (e.g. `.icon-sound-on` / `.icon-sound-off`, `.icon-pause` / `.icon-play`) — never by swapping a path string in JS.
 - No PNG/JPG icons, no emoji used as icons. Adding a new icon means adding a file (or a symbol) under `assets/icons/`, never pasting a path into the HTML.
@@ -71,7 +72,7 @@ The math crossword game (Nov 2026) was built feature by feature with no code sta
 
 ## Applying this to existing work
 
-- The math crossword game's old rule — "keep all JavaScript in js/game.js as one classic script with no modules, imports or exports" — is superseded by this skill. The refactor shape is: extract CSS to `assets/css/game.css`; split `game.js` into the modules above; a frozen `CONFIG`; one op table; delegation + targeted updates; a drag state machine; serialisable undo snapshots. Preserve every gameplay rule in the math crossword skill (difficulties, the one-given rule, 3-mistake limit, hint, undo, sounds, EN/ZH persistence) and re-verify on the served build before shipping.
+- The math crossword game's old rule — "keep all JavaScript in js/game.js as one classic script with no modules, imports or exports" — is superseded by this skill. The refactor shape is: extract CSS to `assets/css/game.css`; split `game.js` into the modules above; a frozen `CONFIG`; one op table; delegation + targeted updates; a drag state machine; serialisable undo snapshots. Icons live as real SVG files under `assets/icons/` (see Icons). The GitHub layout for the same game is `index.html` at the root with `js/` (modules), `css/game.css`, and `assets/icons/` kept under `assets/`. Preserve every gameplay rule in the math crossword skill (difficulties, the one-given rule, 3-mistake limit, hint, undo, sounds, EN/ZH persistence) and re-verify on the served build before shipping.
 - Apply the same bar to Sudoku and GridBook on their next change, and to any new web artifact from the start.
 
 ## Available connectors
