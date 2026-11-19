@@ -43,6 +43,14 @@ The math crossword game (Nov 2026) was built feature by feature with no code sta
 - Presentation changes go through CSS classes and CSS custom properties, never `element.style.*` assignments from JS. Board sizing is a variable (`--cols`) with `grid-template-columns: repeat(var(--cols), 1fr)`; visibility is a `.hidden` class; a drag ghost is a `.drag-ghost` class.
 - The only exception is a genuinely dynamic value that has no class equivalent (e.g. a drag ghost's x/y), set via `style.setProperty`. Everything else is a class.
 
+## Icons: real SVG files under `assets/icons/`
+
+- Icons are real SVG files, never inline SVG paths pasted into `index.html`. Store them under `assets/icons/` — one file per icon (e.g. `globe.svg`, `reset.svg`, `sound-on.svg`, `sound-off.svg`, `pause.svg`, `play.svg`, `hint.svg`, `sort.svg`, `undo.svg`), or a single sprite file `assets/icons/icons.svg` with one `<symbol>` per icon. A sprite is preferred: one request, one place to find every icon.
+- Reference them from the HTML with `<svg><use href="assets/icons/icons.svg#globe"></use></svg>` (sprite) or `<use href="assets/icons/globe.svg">` (single file) — not with `<img>`. An `<img>` cannot inherit the button's colour; `<use>` keeps `fill="currentColor"`, so the icon still takes its colour from CSS.
+- Keep every icon on a `viewBox="0 0 24 24"` with `fill="currentColor"`. The `aria-label` stays on the button, not the icon; the `<svg>` itself is `aria-hidden="true"`.
+- State variants are separate icons, toggled by CSS classes (e.g. `.icon-sound-on` / `.icon-sound-off`, `.icon-pause` / `.icon-play`) — never by swapping a path string in JS.
+- No PNG/JPG icons, no emoji used as icons. Adding a new icon means adding a file (or a symbol) under `assets/icons/`, never pasting a path into the HTML.
+
 ## Naming and functions
 
 - Names say what the thing is. `T()` becomes `translate()`, `ri()` becomes `randomInt()`, `S` becomes `solverState`, `sorted` becomes `sortedTiles`. Short names are allowed only for a loop index or a genuinely local throwaway.
